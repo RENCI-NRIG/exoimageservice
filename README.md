@@ -1,6 +1,7 @@
 # Table of contents
 
  - [Image Service](#descr)
+   - [Design](#design)
    - [API Server](#apiserver)
    - [API Documentation](#api)
    - [Generate a new server stub](#generate)
