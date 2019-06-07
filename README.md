@@ -1,9 +1,19 @@
-# Image Service
+# Table of contents
+
+ - [Image Service](#descr)
+   - [API Server](#apiserver)
+   - [API Documentation](#api)
+   - [Generate a new server stub](#generate)
+   - [How to launch Image Service?](#docker)
+   - [How to use Image Service?](#usage)
+     
+   
+# <a name="descr"></a>Image Service
 
 Image Service is Spring-Boot based REST Webserver with the ability to download VM images created by users from the respective Openstack Head Nodes where the image is hosted.
 
 
-## Design
+## <a name="design"></a>Design
 With ORCA upgraded to latest openstack. Users can create images from Horizon Dashboard.
 However, currently, glance does not expose a GUI interface to download the images from Horizon Dashboard.
 
@@ -17,15 +27,15 @@ Password
 
 REST service would be spawned on the head-node and use Openstack Glance REST APIs to download the image and transfer it to the user.
 
-## API Server  
+## <a name="apiserver"></a>API Server  
 Swagger enables the generation of clients and servers in a variety of common programming languages via the swagger codegen project.
 
 Clients are generated to be fully formed and functional from the generated files including documentation Servers are generated as stubbed code, and require the logical operations to be added by the user The server within this repository is based on Spring Boot and Java API for RESTful Web Services.
 
-## API Documentation
+## <a name="api"></a>API Documentation
 [API Documentation](https://app.swaggerhub.com/apis-docs/kthare10/exoimageservice/1.0.0)
 
-## Generate a new server stub
+## <a name="generate"></a>Generate a new server stub
 In a browser, go to [Swagger definition](https://app.swaggerhub.com/apis/kthare10/exoimageservice/1.0.0)
 
 From the generate code icon (downward facing arrow), select Download API > JSON Resolved
@@ -44,5 +54,8 @@ $ cat myOptions.json
 }
 $ swagger-codegen generate -i swagger.json -l spring -c myOptions.json -o exoimageservice
 ```
-## <a name="docker"></a>How to use or launch Image Service?
+## <a name="docker"></a>How to launch Image Service?
 - Refer to [Docker](./docker/Readme.md) to launch Image Service
+
+## <a name="usage"></a>How to use Image Service?
+- Refer to [Python](./python/Readme.md) to use Image Service
