@@ -49,5 +49,5 @@ optional arguments:
 ### <a name="image_client_examples"></a>Image Client Examples
 #### <a name="img_download"></a>Download an image
 ```
-python3 image_client.py -p <project name> -u <user> -w <password> -i <image id> -f <file name along with path>
+python3.6 image_client.py -e http://rocky-hn.exogeni.net:8222 -p tenant-Komal-V8J7MLMuwx -u owner-Komal-V8J7MLMuwx -w YMJhJ0xSlN -i a647c421-7c57-4b7f-ad23-66fe7594569c -f ./myimage.qcow2
 ```
