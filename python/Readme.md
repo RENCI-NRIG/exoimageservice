@@ -12,9 +12,10 @@ Python based clients
  - Image client to trigger Image Service REST commands.
 
 # <a name="install"></a>Installation
-`https://github.com/RENCI-NRIG/exoimageservice.git`
-
-`cd exoimageservice/python/`
+```
+https://github.com/RENCI-NRIG/exoimageservice.git
+cd exoimageservice/python/
+```
 
 You are now ready execute python client.
 
