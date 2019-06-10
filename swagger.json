@@ -1,0 +1,104 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Exogeni Image Service API",
+    "version" : "1.0.0",
+    "title" : "Exogeni Image Service API",
+    "termsOfService" : "None",
+    "contact" : {
+      "email" : "kthare10@renci.org"
+    },
+    "license" : {
+      "name" : "EPL-2.0",
+      "url" : "https://opensource.org/licenses/EPL-2.0"
+    }
+  },
+  "host" : "virtserver.swaggerhub.com",
+  "basePath" : "/kthare10/exoimageservice/1.0.0",
+  "schemes" : [ "https" ],
+  "paths" : {
+    "/image" : {
+      "get" : {
+        "summary" : "downloads image given image id",
+        "description" : "downloads image given image id\n",
+        "produces" : [ "application/octet-stream" ],
+        "parameters" : [ {
+          "name" : "project",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "userName",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "password",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "imageId",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/imageResponse"
+            }
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          },
+          "default" : {
+            "description" : "Unexpected Error"
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "imageResponse" : {
+      "type" : "string",
+      "format" : "binary"
+    }
+  },
+  "parameters" : {
+    "userName" : {
+      "name" : "userName",
+      "in" : "query",
+      "required" : true,
+      "type" : "string"
+    },
+    "password" : {
+      "name" : "password",
+      "in" : "query",
+      "required" : true,
+      "type" : "string"
+    },
+    "project" : {
+      "name" : "project",
+      "in" : "query",
+      "required" : true,
+      "type" : "string"
+    },
+    "imageId" : {
+      "name" : "imageId",
+      "in" : "query",
+      "required" : true,
+      "type" : "string"
+    }
+  }
+}
