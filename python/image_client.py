@@ -37,24 +37,44 @@ class ImageInterface:
             self._log = logging.getLogger('')
 
     @classmethod
-    def _headers(self):
+    def get_image_size(self, host, project, user, password, imageId):
         headers = {
-            'Accept': 'application/octet-stream',
+            'Accept': 'text/plain',
             'Content-Type': "application/json",
         }
-        return headers
-
-    @classmethod
-    def get_image(self, host, project, user, password, imageId):
         params = {
                 'project':project,
                 'userName':user,
                 'password':password,
                 'imageId':imageId
             }
-        response = requests.get((host + '/exoimageservice/1.0.0/image'), headers=self._headers(), params=params, stream=True, verify=False)
+        response = requests.get((host + '/exoimageservice/1.0.0/imageSize'), headers=headers, params=params, stream=True, verify=False)
         print ("Received Response Status: " + str(response.status_code))
         return response
+
+    @classmethod
+    def get_image(self, host, project, user, password, imageId, contentRange=None):
+        headers = {
+            'Accept': 'application/octet-stream',
+            'Content-Type': "application/json",
+        }
+        if contentRange is not None:
+            headers = {
+             'Accept': 'application/octet-stream',
+             'Content-Type': "application/json",
+             'Range':contentRange
+            }
+
+        params = {
+                'project':project,
+                'userName':user,
+                'password':password,
+                'imageId':imageId
+            }
+        response = requests.get((host + '/exoimageservice/1.0.0/image'), headers=headers, params=params, stream=True, verify=False)
+        print ("Received Response Status: " + str(response.status_code))
+        return response
+
 
 def main():
      parser = argparse.ArgumentParser(description='Python client to download images.\n')
@@ -108,18 +128,72 @@ def main():
          help='file',
          required=True
      )
+     parser.add_argument(
+         '-s',
+         '--split',
+         dest='split',
+         type = bool,
+         help='download the file by parts',
+         required=False,
+         default=True
+     )
+     parser.add_argument(
+         '-r',
+         '--range',
+         dest='range',
+         type = int,
+         help='download the file by parts in increments of range',
+         required=False,
+         default=49999999
+     )
 
      args = parser.parse_args()
 
-
      im=ImageInterface()
-     r =im.get_image(args.exoimageHost, args.project, args.user, args.password, args.imageId)
-     print ("Headers: %s" % r.headers)
-     if r.status_code == 200:
-        with open(args.file, 'wb') as f:
-            r.raw.decode_content = True
-            shutil.copyfileobj(r.raw, f)
+
+     if args.split == True:
+         r =im.get_image_size(args.exoimageHost, args.project, args.user, args.password, args.imageId)
+         if r.status_code != 200 :
+            print ("Failed to determine image size")
+            sys.exit(1)
+         size=int(r.content)
+         print ("Image size: " + str(size))
+         start=0
+         end = args.range
+         length=0
+         while length < size :
+            contentRange='bytes=' + str(start) + "-" + str(end)
+            r =im.get_image(args.exoimageHost, args.project, args.user, args.password, args.imageId, contentRange)
+            print ("Downloaded: %s" % r.headers.get("Content-Range") + "; Image size: " + str(size) + " Content-Md5= %s" % r.headers.get("Content-Md5"))
+            #print ("Headers: %s" % r.headers)
+            if r.status_code == 200 or r.status_code == 206:
+                length = length + int(r.headers['Content-Length'])
+                with open(args.file, 'ab') as f:
+                    r.raw.decode_content = True
+                    shutil.copyfileobj(r.raw, f)
+            else :
+                print ("Failed to download image")
+                sys.exit(1)
+            start = end
+            end = start + args.range
+            start = start + 1
+            if r.status_code == 200:
+                break
+     else :
+         r =im.get_image(args.exoimageHost, args.project, args.user, args.password, args.imageId)
+         if r.status_code != 200 :
+            print ("Failed to determine image size")
+            sys.exit(1)
+         print ("Headers: %s" % r.headers)
+         if r.status_code == 200:
+            with open(args.file, 'wb') as f:
+                r.raw.decode_content = True
+                shutil.copyfileobj(r.raw, f)
+         else :
+            print ("Failed to download image")
+            sys.exit(1)
      print ("file download complete")
+
 
      sys.exit(0)
 

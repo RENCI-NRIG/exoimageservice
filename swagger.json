@@ -17,6 +17,57 @@
   "basePath" : "/kthare10/exoimageservice/1.0.0",
   "schemes" : [ "https" ],
   "paths" : {
+    "/imageSize" : {
+      "get" : {
+        "summary" : "returns image size given image id",
+        "description" : "returns image size given image id\n",
+        "produces" : [ "text/plain" ],
+        "parameters" : [ {
+          "name" : "project",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "userName",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "password",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "imageId",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "type" : "string"
+            }
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          },
+          "default" : {
+            "description" : "Unexpected Error"
+          }
+        }
+      }
+    },
     "/image" : {
       "get" : {
         "summary" : "downloads image given image id",
@@ -47,7 +98,15 @@
           "200" : {
             "description" : "OK",
             "schema" : {
-              "$ref" : "#/definitions/imageResponse"
+              "type" : "string",
+              "format" : "binary"
+            }
+          },
+          "206" : {
+            "description" : "Partial Content",
+            "schema" : {
+              "type" : "string",
+              "format" : "binary"
             }
           },
           "400" : {
@@ -69,12 +128,7 @@
       }
     }
   },
-  "definitions" : {
-    "imageResponse" : {
-      "type" : "string",
-      "format" : "binary"
-    }
-  },
+  "definitions" : { },
   "parameters" : {
     "userName" : {
       "name" : "userName",
