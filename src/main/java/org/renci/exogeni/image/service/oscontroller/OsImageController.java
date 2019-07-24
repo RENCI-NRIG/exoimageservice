@@ -191,7 +191,7 @@ public class OsImageController {
             String token = auth(region);
             if (token != null) {
                 HttpHeaders headers = new HttpHeaders();
-                System.out.println("Setting token " + token);
+                logger.debug("Setting token " + token);
                 headers.set("X-Auth-Token", token);
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -249,7 +249,7 @@ public class OsImageController {
             String token = auth(region);
             if (token != null) {
                 HttpHeaders headers = new HttpHeaders();
-                System.out.println("Setting token " + token);
+                logger.debug("Setting token " + token);
                 headers.set("X-Auth-Token", token);
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.setAccept(Collections.singletonList(MediaType.APPLICATION_OCTET_STREAM));
