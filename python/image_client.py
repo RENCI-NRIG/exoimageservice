@@ -164,7 +164,7 @@ def main():
          while length < size :
             contentRange='bytes=' + str(start) + "-" + str(end)
             r =im.get_image(args.exoimageHost, args.project, args.user, args.password, args.imageId, contentRange)
-            print ("Downloaded: %s" % r.headers.get("Content-Range") + "; Image size: " + str(size))
+            print ("Downloaded: %s" % r.headers.get("Content-Range") + "; Image size: " + str(size) + " Content-Md5= %s" % r.headers.get("Content-Md5"))
             #print ("Headers: %s" % r.headers)
             if r.status_code == 200 or r.status_code == 206:
                 length = length + int(r.headers['Content-Length'])
