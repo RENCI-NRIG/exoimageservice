@@ -2,7 +2,7 @@ package org.renci.exogeni.image.service.api;
 
 import javax.xml.bind.annotation.XmlTransient;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2019-05-29T10:20:00.231-04:00[America/New_York]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2019-07-23T14:40:10.501-04:00[America/New_York]")
 
 @javax.xml.bind.annotation.XmlRootElement
 public class ApiResponseMessage {

@@ -50,15 +50,21 @@ public class OsImageController {
         private InputStreamResource inputStreamResource;
         private Integer length;
         private String md5Checksum;
+        private HttpStatus status;
+        private String range;
 
-        public ImageDetails(InputStreamResource inputStreamResource, Integer length, String md5Checksum) {
+        public ImageDetails(InputStreamResource inputStreamResource, Integer length, String md5Checksum, HttpStatus status, String range) {
             this.inputStreamResource = inputStreamResource;
             this.length = length;
             this.md5Checksum = md5Checksum;
+            this.status = status;
+            this.range = range;
         }
         public InputStreamResource getInputStreamResource() { return inputStreamResource; }
         public Integer getLength() { return length; }
         public String getMd5Checksum() { return md5Checksum; }
+        public HttpStatus getStatus() { return status; }
+        public String getRange() { return range; }
     }
 
 
@@ -176,7 +182,65 @@ public class OsImageController {
      *
      * @throws exception in case of error
      */
-    public ImageDetails getImage(String imageId) throws Exception {
+    public Integer getImageDetails(String imageId) throws Exception {
+
+        if (region == null || imageId == null) {
+            throw new ImageServiceException("Failed to construct image request; invalid input params");
+        }
+        try {
+            String token = auth(region);
+            if (token != null) {
+                HttpHeaders headers = new HttpHeaders();
+                System.out.println("Setting token " + token);
+                headers.set("X-Auth-Token", token);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+                HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+                ResponseEntity<Map> result = rest.exchange(imageEndpoint + "/" + imageUrl + "/" + imageId, HttpMethod.GET,
+                        requestEntity, Map.class);
+                LOGGER.debug("Get Image Details Response Status Code=" + result.getStatusCode());
+
+                if (result.getStatusCode() == HttpStatus.OK) {
+                    LOGGER.debug("Successfully retrieved image details");
+                    LOGGER.debug("Body: " + result.getBody());
+                    Integer size = (Integer) result.getBody().get("size");
+                    LOGGER.debug("Image size=" + size);
+                    return size;
+                } else {
+                    throw new ImageServiceException("failed to get image " + result.getStatusCode());
+                }
+
+            }
+            else {
+                throw new ImageServiceException("failed to get token");
+            }
+        }
+        catch (HttpClientErrorException e) {
+            LOGGER.error("HTTP exception occurred e=" + e);
+            LOGGER.error("HTTP Error response = " + e.getResponseBodyAsString());
+            e.printStackTrace();
+            throw new ImageServiceException(e.getResponseBodyAsString());
+        }
+        catch (Exception e) {
+            LOGGER.error("Exception occured while retrieving image e=" + e);
+            LOGGER.error("Message= " + e.getMessage());
+            LOGGER.error("Message= " + e.getLocalizedMessage());
+            e.printStackTrace();
+            throw new ImageServiceException("failed to get image e=" + e.getMessage());
+        }
+    }
+
+    /*
+     * @brief function to fetch a image with image id
+     *
+     * @param imageId - image id
+     *
+     * @return map containing lease object
+     *
+     * @throws exception in case of error
+     */
+    public ImageDetails getImage(String imageId, String range) throws Exception {
+
 
         if (region == null || imageId == null) {
             throw new ImageServiceException("Failed to construct image request; invalid input params");
@@ -189,23 +253,33 @@ public class OsImageController {
                 headers.set("X-Auth-Token", token);
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.setAccept(Collections.singletonList(MediaType.APPLICATION_OCTET_STREAM));
+                if(range != null ) {
+                    headers.set(HttpHeaders.RANGE, range);
+                }
+
+                LOGGER.debug("headers=" + headers);
+
                 HttpEntity<?> requestEntity = new HttpEntity<>(headers);
                 ResponseEntity<byte[]> result = rest.exchange(imageEndpoint + "/" + imageUrl + "/" + imageId + "/file", HttpMethod.GET,
                         requestEntity, byte[].class);
                 LOGGER.debug("Get Image Response Status Code=" + result.getStatusCode());
 
-                if (result.getStatusCode() == HttpStatus.OK) {
+                if (result.getStatusCode() == HttpStatus.OK || result.getStatusCode() == HttpStatus.PARTIAL_CONTENT) {
                     LOGGER.debug("Successfully retrieved images");
                     LOGGER.debug("Body=" + result.getBody().length);
+                    LOGGER.debug("Response Header:" + result.getHeaders().toString());
                     LOGGER.debug("Content-MD5=" + result.getHeaders().get("Content-MD5"));
-                    String checksum = null;
+                    String checksum = null, contentRange = null;
                     if(result.getHeaders().get("Content-MD5").size() != 0) {
                         checksum = result.getHeaders().get("Content-MD5").get(0);
+                    }
+                    if(result.getHeaders().get("Content-Range").size() != 0 ) {
+                        contentRange = result.getHeaders().get("Content-Range").get(0);
                     }
                     byte[] byteArr = result.getBody();
                     InputStreamResource inputStream = new InputStreamResource(new ByteArrayInputStream(byteArr));
 
-                    return new ImageDetails(inputStream, result.getBody().length, checksum);
+                    return new ImageDetails(inputStream, result.getBody().length, checksum, result.getStatusCode(), contentRange);
                 } else {
                     throw new ImageServiceException("failed to get image " + result.getStatusCode());
                 }

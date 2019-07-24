@@ -6,8 +6,6 @@ import org.renci.exogeni.image.service.oscontroller.ImageServiceException;
 import org.renci.exogeni.image.service.oscontroller.OsImageController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,53 +26,42 @@ import java.util.Map;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2019-07-23T14:40:10.501-04:00[America/New_York]")
 
 @Controller
-public class ImageApiController implements ImageApi {
+public class ImageSizeApiController implements ImageSizeApi {
 
-    private static final Logger log = LoggerFactory.getLogger(ImageApiController.class);
+    private static final Logger log = LoggerFactory.getLogger(ImageSizeApiController.class);
 
     private final ObjectMapper objectMapper;
 
     private final HttpServletRequest request;
 
     @org.springframework.beans.factory.annotation.Autowired
-    public ImageApiController(ObjectMapper objectMapper, HttpServletRequest request) {
+    public ImageSizeApiController(ObjectMapper objectMapper, HttpServletRequest request) {
         this.objectMapper = objectMapper;
         this.request = request;
     }
 
-    public ResponseEntity<InputStreamResource> imageGet(@NotNull @ApiParam(value = "", required = true) @Valid @RequestParam(value = "project", required = true) String project, @NotNull @ApiParam(value = "", required = true) @Valid @RequestParam(value = "userName", required = true) String userName, @NotNull @ApiParam(value = "", required = true) @Valid @RequestParam(value = "password", required = true) String password, @NotNull @ApiParam(value = "", required = true) @Valid @RequestParam(value = "imageId", required = true) String imageId) {
+    public ResponseEntity<String> imageSizeGet(@NotNull @ApiParam(value = "", required = true) @Valid @RequestParam(value = "project", required = true) String project,@NotNull @ApiParam(value = "", required = true) @Valid @RequestParam(value = "userName", required = true) String userName,@NotNull @ApiParam(value = "", required = true) @Valid @RequestParam(value = "password", required = true) String password,@NotNull @ApiParam(value = "", required = true) @Valid @RequestParam(value = "imageId", required = true) String imageId) {
         String accept = request.getHeader("Accept");
-        String range = request.getHeader(HttpHeaders.RANGE);
 
         OsImageController osImageController = null;
         try {
             osImageController = new OsImageController(project, userName, password);
 
-            OsImageController.ImageDetails imageDetails = osImageController.getImage(imageId, range);
+            Integer imageSize = osImageController.getImageDetails(imageId);
             ResponseEntity<String> responseEntity = new  ResponseEntity<String>(HttpStatus.OK);
 
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-MD5", imageDetails.getMd5Checksum());
-            if(imageDetails.getRange() != null) {
-                headers.add("Content-Range", imageDetails.getRange());
-            }
-
-            return ResponseEntity.status(imageDetails.getStatus()).headers(headers).contentLength(imageDetails.getLength())
-                    .contentType(MediaType.parseMediaType("application/octet-stream"))
-                    .body(imageDetails.getInputStreamResource());
+            return ResponseEntity.ok().contentType(MediaType.parseMediaType("text/plain")).body(imageSize.toString());
         }
         catch (ImageServiceException e) {
             log.error("Exception occurred e=" + e);
             e.printStackTrace();
-            return new ResponseEntity<InputStreamResource>(e.getStatus());
+            return new ResponseEntity<String>(e.getStatus());
         }
         catch (Exception e) {
             log.error("Exception occurred e=" + e);
             e.printStackTrace();
-            return new ResponseEntity<InputStreamResource>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
 }
