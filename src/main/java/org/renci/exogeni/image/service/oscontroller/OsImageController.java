@@ -182,7 +182,7 @@ public class OsImageController {
      *
      * @throws exception in case of error
      */
-    public Integer getImageDetails(String imageId) throws Exception {
+    public String getImageDetails(String imageId) throws Exception {
 
         if (region == null || imageId == null) {
             throw new ImageServiceException("Failed to construct image request; invalid input params");
@@ -191,7 +191,7 @@ public class OsImageController {
             String token = auth(region);
             if (token != null) {
                 HttpHeaders headers = new HttpHeaders();
-                logger.debug("Setting token " + token);
+                LOGGER.debug("Setting token " + token);
                 headers.set("X-Auth-Token", token);
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -203,7 +203,7 @@ public class OsImageController {
                 if (result.getStatusCode() == HttpStatus.OK) {
                     LOGGER.debug("Successfully retrieved image details");
                     LOGGER.debug("Body: " + result.getBody());
-                    Integer size = (Integer) result.getBody().get("size");
+                    String size = result.getBody().get("size").toString();
                     LOGGER.debug("Image size=" + size);
                     return size;
                 } else {
@@ -249,7 +249,7 @@ public class OsImageController {
             String token = auth(region);
             if (token != null) {
                 HttpHeaders headers = new HttpHeaders();
-                logger.debug("Setting token " + token);
+                LOGGER.debug("Setting token " + token);
                 headers.set("X-Auth-Token", token);
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.setAccept(Collections.singletonList(MediaType.APPLICATION_OCTET_STREAM));

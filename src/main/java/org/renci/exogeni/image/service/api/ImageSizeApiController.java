@@ -47,10 +47,10 @@ public class ImageSizeApiController implements ImageSizeApi {
         try {
             osImageController = new OsImageController(project, userName, password);
 
-            Integer imageSize = osImageController.getImageDetails(imageId);
+            String imageSize = osImageController.getImageDetails(imageId);
             ResponseEntity<String> responseEntity = new  ResponseEntity<String>(HttpStatus.OK);
 
-            return ResponseEntity.ok().contentType(MediaType.parseMediaType("text/plain")).body(imageSize.toString());
+            return ResponseEntity.ok().contentType(MediaType.parseMediaType("text/plain")).body(imageSize);
         }
         catch (ImageServiceException e) {
             log.error("Exception occurred e=" + e);
